@@ -1,0 +1,14 @@
+{
+  "id": "conversational-graph-003",
+  "skills": ["conversational-graph"],
+  "query": "One stage of my chatbot lets the user look up and cancel their appointment, but only after they verify their email with a code. A prompt instruction telling the model to verify first keeps getting bypassed. How do I make the gate solid?",
+  "expected_behavior": [
+    "activate the conversational-graph skill",
+    "recommend a toolGate driven by an expression: filter the sensitive tools out of the offered toolset until ctx.verified is true (or the user is already authenticated)",
+    "note the send-code/verify-code tools stay available and the gated tools reappear when verified (re-filter each tool-loop round)",
+    "explain this is deterministic / not jailbreakable, strictly better than a prompt instruction"
+  ],
+  "expected_content": ["toolGate", "expression", "verified", "transitions-and-gotchas.md"],
+  "priority": "high",
+  "notes": "Guards the security-gate-in-code wall: hide tools by expression, never trust a prompt to hold a gate."
+}

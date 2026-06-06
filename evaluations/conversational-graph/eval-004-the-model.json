@@ -1,0 +1,15 @@
+{
+  "id": "conversational-graph-004",
+  "skills": ["conversational-graph"],
+  "query": "I'm designing a multi-stage chatbot in my own code as a graph. What exactly is a node versus a transition, and what kinds of transitions are there?",
+  "expected_behavior": [
+    "activate the conversational-graph skill",
+    "describe a node as a focused stage: an additive prompt + only its tools + its outgoing edges (and an optional tool-gate)",
+    "describe a transition/edge as target + type + label + condition/predicate, owned by the node",
+    "enumerate the three transition types: unconditional, llm (intent), expression (deterministic predicate over state)",
+    "note it is node-centric so a backward edge is just an edge whose target is an earlier node"
+  ],
+  "expected_content": ["node", "transition", "unconditional", "llm", "expression", "the-model.md"],
+  "priority": "medium",
+  "notes": "Guards the core data model and the three-transition-type vocabulary."
+}

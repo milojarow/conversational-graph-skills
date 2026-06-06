@@ -1,0 +1,14 @@
+{
+  "id": "conversational-graph-005",
+  "skills": ["conversational-graph"],
+  "query": "Should I build my customer-support bot as a code graph engine, a simple intent router, or a hosted voice-agent platform? It's text-only, about 4 stages, with an identity-verification gate.",
+  "expected_behavior": [
+    "activate the conversational-graph skill",
+    "weigh the three options instead of defaulting to the graph",
+    "recommend the code graph here (text + 3+ stages + a deterministic gate), and say why",
+    "explain when a simple router fits (2-3 modes, little persisted state) and when a hosted platform fits (voice / managed), including the platform's text-mode latency and lack of deterministic gates"
+  ],
+  "expected_content": ["code graph", "router", "platform", "code-vs-platform.md"],
+  "priority": "medium",
+  "notes": "Guards the architecture-choice decision — don't reach for the graph by reflex; don't use a voice platform for a text bot."
+}

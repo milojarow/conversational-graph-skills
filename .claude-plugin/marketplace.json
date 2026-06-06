@@ -1,0 +1,25 @@
+{
+  "name": "conversational-graph-skills",
+  "description": "Build a conversational agent as a code-driven graph / state machine — focused nodes (each with its own prompt + tools) connected by forward/back transitions, with deterministic gates — in your own stack instead of a mega-prompt or a hosted workflow platform.",
+  "owner": {
+    "name": "milojarow",
+    "url": "https://github.com/milojarow"
+  },
+  "plugins": [
+    {
+      "name": "conversational-graph-skills",
+      "source": "./",
+      "description": "Use when building a conversational agent as a code-driven graph / state machine — routing a chat through focused stages (nodes with their own prompt + tools) via forward/back transitions — or when a stage-routing bot mis-routes, hallucinates a completed action, or a security gate leaks.",
+      "version": "0.1.0",
+      "author": {
+        "name": "milojarow",
+        "url": "https://github.com/milojarow"
+      },
+      "category": "ai",
+      "keywords": ["conversational-ai", "state-machine", "agent-graph", "chatbot-architecture", "llm-routing", "dialog-engine"],
+      "homepage": "https://github.com/milojarow/conversational-graph-skills",
+      "repository": "https://github.com/milojarow/conversational-graph-skills",
+      "license": "MIT"
+    }
+  ]
+}

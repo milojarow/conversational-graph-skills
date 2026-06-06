@@ -1,0 +1,14 @@
+{
+  "id": "conversational-graph-001",
+  "skills": ["conversational-graph"],
+  "query": "My code-driven stage-routing chatbot sometimes jumps to the closing stage and tells the user their order was cancelled, but nothing actually got cancelled. Why does it happen and how do I fix it?",
+  "expected_behavior": [
+    "activate the conversational-graph skill",
+    "diagnose that the completion ('done') transition is LLM-judged and an eager classifier fired it mid-flow",
+    "explain the close node has no tools so the model hallucinates the completion",
+    "recommend making completion transitions deterministic: an expression over a flag the real action tool sets (e.g. cancelled === true)"
+  ],
+  "expected_content": ["expression", "completion", "hallucinat", "transitions-and-gotchas.md"],
+  "priority": "high",
+  "notes": "Guards the most dangerous wall: completion-by-LLM fires early → tool-less node hallucinates a finished action."
+}

@@ -1,0 +1,14 @@
+{
+  "id": "conversational-graph-002",
+  "skills": ["conversational-graph"],
+  "query": "In my stage-routing chatbot, when the user says 'I want to book a consultation' it just stays in the hub and never moves to the booking stage, even though the intent is obvious. The classifier works fine when I test the phrase alone. What's wrong?",
+  "expected_behavior": [
+    "activate the conversational-graph skill",
+    "identify that the transition classifier is being fed the node's own freshly-generated acknowledging reply",
+    "explain that makes it read 'the current stage is already handling it' and return NONE",
+    "recommend classifying on the user's message + prior history only, excluding the just-generated reply"
+  ],
+  "expected_content": ["intent", "user's message", "reply", "transitions-and-gotchas.md"],
+  "priority": "high",
+  "notes": "Guards the route-on-intent wall: including the node's own reply in the classifier input suppresses routing."
+}
