@@ -41,6 +41,7 @@ Each node owns its outgoing transitions. Full data model + the runtime loop: [re
 | Data model (node / edge / 3 transition types / session state) + the runtime engine loop | [reference/the-model.md](reference/the-model.md) |
 | **Transition gotchas** — the hard walls: route-on-intent, complete-by-expression, classifier balance, expression security gates | [reference/transitions-and-gotchas.md](reference/transitions-and-gotchas.md) |
 | When a **code graph** vs a **hosted platform** vs a **simple 2-way router** | [reference/code-vs-platform.md](reference/code-vs-platform.md) |
+| A node that answers from a knowledge base (**RAG**) — embedding-model quality, diagnosing bad retrieval | [reference/rag-nodes.md](reference/rag-nodes.md) |
 
 ## Quick reference
 
