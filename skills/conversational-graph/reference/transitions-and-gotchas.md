@@ -39,6 +39,16 @@ You will likely over-correct in both directions before landing it:
 
 Deterministic, not jailbreakable — strictly better than a prompt instruction. This is a concrete place a **code graph beats a hosted platform**, which typically pays an LLM judge on every transition and can't gate tool *availability* on a hard predicate.
 
+## 5. A close/terminal node needs an escape edge back to the hub
+
+**Wall:** after the bot completes an action (book / cancel), the user brings a NEW request — but the conversation is parked in the "close" node, whose only edge is → end. The node can't route, so the LLM improvises the new request in-place, **skipping the flow's gates** (e.g. it offers to cancel an account action WITHOUT re-running identity verification).
+
+**Cause:** a terminal node modeled with a single escape (→ end) is a dead end. Anything new after the action has nowhere to go but the model's improvisation.
+
+**Fix:** every close/terminal node also carries a **"new request → hub"** edge, evaluated BEFORE its → end edge. Re-entering the hub re-routes the request through the proper node and re-applies its gates (verification, etc.).
+
+**Symptom to watch:** the bot handles something new "by hand" in the close stage, bypassing a gate that would apply from the hub.
+
 ## Bonus: lazy + short-circuit evaluation (speed + correctness)
 
 Evaluate a node's edges in priority order. `expression` edges are free — check them inline and return on the first match. Only when you reach an `llm` edge do you make the classifier call (once, for all the node's llm edges). After an action completes, the `expression` completion edge wins first and you never pay the classifier that turn — and, importantly, the deterministic edge can't be overridden by an eager classifier.

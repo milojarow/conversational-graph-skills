@@ -42,6 +42,7 @@ Each node owns its outgoing transitions. Full data model + the runtime loop: [re
 | **Transition gotchas** — the hard walls: route-on-intent, complete-by-expression, classifier balance, expression security gates | [reference/transitions-and-gotchas.md](reference/transitions-and-gotchas.md) |
 | When a **code graph** vs a **hosted platform** vs a **simple 2-way router** | [reference/code-vs-platform.md](reference/code-vs-platform.md) |
 | A node that answers from a knowledge base (**RAG**) — embedding-model quality, diagnosing bad retrieval | [reference/rag-nodes.md](reference/rag-nodes.md) |
+| **Small-model reliability** — params from state not args, real-result confirmation, pin invalidation, response dedup, state-forcing debug | [reference/state-and-small-models.md](reference/state-and-small-models.md) |
 
 ## Quick reference
 
@@ -57,4 +58,6 @@ Each node owns its outgoing transitions. Full data model + the runtime loop: [re
 - **A stage won't route even on a clear request** ("I want to book" stays in hub). The classifier was fed the node's own acknowledging reply → read "already being handled" → NONE. Classify on the user's message + history only. [transitions-and-gotchas.md]
 - **The classifier flip-flops** (too eager → false transitions; too shy → no routing). Route on clear current intent; reserve "abandoned / said goodbye" edges for a real topic change. [transitions-and-gotchas.md]
 - **A verification gate leaks** because the prompt was "supposed to" hold it. Make it a `toolGate` `expression` — the sensitive tools don't exist for the model until the flag flips. [transitions-and-gotchas.md]
+- **A close/terminal node dead-ends a follow-up request** — after an action completes, a new request gets improvised in the close node, skipping the flow's gates. Give the close node a "new request → hub" edge, evaluated before → end. [transitions-and-gotchas.md]
+- **A small model invents tool params / claims actions that didn't happen / repeats itself.** Derive critical params from state (not `args`), confirm only on the tool's real result, dedup the output in code. [state-and-small-models.md]
 - **Building a code graph when a 2-way router or a hosted platform was the right tool.** [code-vs-platform.md]
