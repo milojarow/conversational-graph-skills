@@ -19,6 +19,17 @@ interface Node {
 - **The per-node prompt is additive.** Keep a shared `BASE` prompt (persona, tone, global rules, "only talk about X") and build each turn's system prompt as `BASE + node.prompt`. Every node speaks consistently; the node prompt only adds its stage-specific job.
 - **Scope tools per node.** The action stage sees only its action tools; the model isn't choosing among many unrelated tools every turn. Fewer tools offered → fewer wrong calls.
 
+### What goes in BASE vs the node prompt
+
+Split by *what-it-looks-like* vs *what-this-stage-does*:
+
+- **BASE prompt** = persona, tone, global rules, AND **message formatting / presentation** ("how the bot writes its replies"). Formatting is a cross-cutting *look-and-feel* concern: it must render identically across every stage (hub / intake / manage / close). Put it in BASE once → every stage looks the same. Put it per-node → you repeat it N times and it drifts.
+- **Per-node prompt** = only that stage's *job* ("what it does"), never the presentation.
+
+This is the answer to the recurring "where do I make the replies look nicer / match another bot's style?" → the **BASE** prompt. The same applies whether you run the graph in code or on a hosted platform — same node/edge model, only the engine differs.
+
+**Gotcha — a formatting rule over-fragments easily.** A rule like "put each item in its own short paragraph, separated by a blank line" can make the model split an item's *name* onto its own line and its description into a *second* paragraph — every item becomes two stranded paragraphs, airy to the point of broken. Pin the *unit* precisely instead: "each item is ONE paragraph joining its name AND its value in a single phrase (e.g. `Plan A: term life insurance to protect your family.`); the blank line goes BETWEEN items, never inside one; no tight bullet lists." A presentation rule needs you to look at the actual rendered output and tune — "airy" vs "over-fragmented" is often a one-clause difference. Don't ship the first wording blind.
+
 ## Edge (transition)
 
 A transition is a directed move from one node to another.
