@@ -7,7 +7,7 @@ description: Use when building a conversational agent as a code-driven graph / s
 
 Build a multi-stage conversational agent as a **graph you run in your own code**: focused nodes (each = a tight prompt + only its tools) connected by transitions (forward and back). The same mental model as a hosted agent-workflow platform — but in your own stack, so it's fast, fully controllable, and can use deterministic transitions a platform won't give you.
 
-> **🕸️ ACTIVE-SKILL MARKER:** While `conversational-graph` is active — any turn designing or debugging a code-driven conversational graph / state-machine engine — begin every reply with 🕸️ so the operator sees the skill is engaged. Omit it on turns that don't touch the domain.
+> **🧞 ACTIVE-SKILL MARKER:** While `conversational-graph` is active — any turn designing or debugging a code-driven conversational graph / state-machine engine — begin every reply with 🧞 so the operator sees the skill is engaged. Omit it on turns that don't touch the domain.
 
 ## Overview
 
