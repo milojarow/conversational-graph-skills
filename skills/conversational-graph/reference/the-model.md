@@ -30,6 +30,18 @@ This is the answer to the recurring "where do I make the replies look nicer / ma
 
 **Gotcha — a formatting rule over-fragments easily.** A rule like "put each item in its own short paragraph, separated by a blank line" can make the model split an item's *name* onto its own line and its description into a *second* paragraph — every item becomes two stranded paragraphs, airy to the point of broken. Pin the *unit* precisely instead: "each item is ONE paragraph joining its name AND its value in a single phrase (e.g. `Plan A: term life insurance to protect your family.`); the blank line goes BETWEEN items, never inside one; no tight bullet lists." A presentation rule needs you to look at the actual rendered output and tune — "airy" vs "over-fragmented" is often a one-clause difference. Don't ship the first wording blind.
 
+### Native channel affordances via a parseable render marker
+
+To give native UI (buttons) without coupling the model to a channel: the prompt instructs the model to emit a final parseable line listing the options —
+
+```
+OPTIONS: Yes, confirm | Change a detail
+```
+
+— and the engine STRIPS it from the text and converts it into the channel's native affordance (Messenger: quick replies, max 4 chips of ≤20 chars each). The user's tap arrives as ordinary plain text, so downstream needs no special handling: the graph processes "Yes, confirm" exactly as if it had been typed.
+
+Why it holds up: the model stays channel-agnostic (the same graph serves web / WhatsApp / Messenger by swapping only the renderer); if the parser doesn't find the marker, the message goes out as normal text (clean degradation); and the marker is deterministically testable in the QA harness. This is the presentation-layer counterpart to keeping formatting in BASE — the marker convention lives in BASE, the renderer lives in the engine, and no node knows which channel it's on.
+
 ## Edge (transition)
 
 A transition is a directed move from one node to another.
