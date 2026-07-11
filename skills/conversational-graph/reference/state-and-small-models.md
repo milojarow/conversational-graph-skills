@@ -8,6 +8,14 @@ A small model invents plausible values for `required` tool params the user hasn'
 
 **Pattern:** capture the datum from the user's INPUT (regex in the engine) → store it in graph state → the tool reads `ctx.<datum>` (state), NEVER `args.<datum>` → the `toolGate` does NOT expose the tool until that datum is in state. The model can't even call the tool with an invented value.
 
+### Validate at the tool boundary — reject narrative non-values
+
+Deriving from state isn't enough on its own: the model can still push a non-value into state via the capture tool. Add a **deterministic validation gate inside the tool handler** — reject narrative non-values with an error tool-result.
+
+Real failure: a `save_datum` tool accepted "the customer says they'll pass it along later" as a contact → the stage advanced with no real datum and the completion predicate fired on garbage.
+
+**Fix:** the handler accepts a contact ONLY if it matches an email regex or a 10–13-digit phone; anything else returns an error as the tool result → the model retries or re-asks the user. The completion predicate is then protected by code — it cannot fire on a non-value, no matter how convinced the model is.
+
 ## Confirm a side-effect only on the tool's REAL result
 
 A prompt that says "I've sent X / done X" after a tool call LIES if the tool failed (rate-limit, network, missing data). The bot asserts an effect that never happened.
