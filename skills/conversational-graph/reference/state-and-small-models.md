@@ -28,6 +28,16 @@ Small models sometimes emit the SAME answer twice (verbatim or reworded) within 
 
 **Fix:** post-process the final text with a conservative dedup — collapse near-identical consecutive segments; for short replies use a token-similarity threshold, for long blocks (catalog-style lists) use EXACT dedup only so distinct items aren't merged; if no duplicate, return the text untouched. Pure function → testable.
 
+## Force the final tool-loop round to text (`tool_choice: "none"`)
+
+When the tool-call loop hits its round cap (e.g. 3 rounds) without having produced any user-facing text, force the LAST round with `tool_choice: "none"`: the model still SEES the tools (full context intact — it knows what already happened) but cannot call them, so it is obliged to emit text for the user.
+
+This kills two real bugs:
+1. **Generic "I'm stuck" fallback** — every round was spent on tool calls and none produced text, so the engine fell through to its hardcoded fallback string.
+2. **Internal-notes leak** — with nothing addressed to the user, the model emits scratch notes ("Now exit.", "Need name next.") as if they were the reply.
+
+`tool_choice: "none"` ≠ removing the tools from the request: stripping them breaks context coherence (the model then sees tool results for tools that "no longer exist"); `"none"` leaves them visible but uncallable.
+
 ## Debug by forcing state and measuring
 
 To reproduce a routing/state bug without the whole flow: seed graph state (`currentNode` + flags) directly in the store (e.g. Redis), send one turn, observe the resulting node + state. To catch duplication/hallucination, log one line per tool-loop round (which tool, what content) — the cause becomes visible instead of guessed.
