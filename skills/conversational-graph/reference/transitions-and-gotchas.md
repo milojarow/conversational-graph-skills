@@ -22,6 +22,15 @@ The node/tool side is easy. The **transition layer** is where a graph bot breaks
 
 **The rule:** anything that means *"the task is complete"* must be a **deterministic fact**, not an LLM judgment. Leave `llm` for *intent* ("which stage does the user want") only.
 
+### Idempotent completion — no duplicate side-effects after close
+
+Once a real result id (CRM lead id, reference number, etc.) is sealed into state, the close is not the end of the risk: the user often keeps typing, and each message can re-trigger the create. Three deterministic guards make completion idempotent:
+1. **Anchor the graph at the terminal / manage stage** — the stage computation respects the anchor even as the conversation continues, so it doesn't drop back into the intake node.
+2. **The confirmation tool becomes a no-op on repeat calls** — if the id already exists in state, it returns the existing one instead of re-creating.
+3. **Treat the backend's duplicate signal as "already exists → adopt"** — a 409 from the CRM (or your own duplicate-check) is not an error: adopt the existing id and continue.
+
+Real bug this killed: the user kept writing after the close and every message re-fired lead creation → duplicate leads in the CRM. With anchor + no-op + 409-as-adopt, zero duplicates under the persona QA battery.
+
 ## 3. The classifier needs BALANCE — eager and conservative both fail
 
 You will likely over-correct in both directions before landing it:
