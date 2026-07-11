@@ -30,6 +30,14 @@ Removing a node's history (so it won't scrape a stale datum from the text) also 
 
 If the user corrects a datum (typed one email, then gives another), the previously pinned value contaminates: a state note like "already sent to <old>" makes the LLM keep using the old one (symptom: "I gave B but the bot insists on A"). **Engine fix:** when a NEW datum differs from the pinned one, invalidate the old pin and its derived flags (e.g. verification). Deterministic, not LLM-dependent.
 
+## Conversational freshness ≠ business state (and the timestamp self-clobber)
+
+Decouple two distinct lifetimes inside session state:
+- **Conversation history** expires on inactivity (e.g. 30 min) → on return the bot greets fresh (no stale recap), optionally recognizing the customer from their persisted profile.
+- **Business state** (registered lead id, booked appointment): NEVER expires. So a fresh greeting can't cause duplicate side-effects — the create-dedup consults business state, not history.
+
+**Implementation gotcha (self-clobber):** freshness is decided by comparing `now - record.updated`, but the turn's own dedup save TOUCHES `updated`. Read the timestamp BEFORE the current turn's save, or every message "refreshes" the record and the freshness window never expires. Document the order: read-updated → decide freshness → process → save.
+
 ## Deduplicate the model's response in code
 
 Small models sometimes emit the SAME answer twice (verbatim or reworded) within a single `content`. Confirmed by instrumenting the tool-loop: it appears in a round with NO tool calls — the model repeating itself, not the loop. A prompt ("don't repeat") isn't enough.
