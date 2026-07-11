@@ -65,3 +65,13 @@ Evaluate a node's edges in priority order. `expression` edges are free — check
 ## Testing these
 
 The whole transition/gate layer is **deterministic and unit-testable without an LLM**: assert the `expression` predicates (flag true → returns its target; false → doesn't), the `toolGate` (sensitive tool hidden when `!verified`, shown when `verified` or authenticated), and the side-effect flag-setters (tool result → flag). Then a handful of live checks for the `llm` routing. Don't run real side-effecting actions (bookings, payments) against a third party just to test a transition — the deterministic test covers the new logic; the action integration is whatever you already trust.
+
+### QA harness: dry-run test route + parallel persona batteries
+
+Beyond the deterministic unit tests, two complementary techniques exercise whole conversations end-to-end:
+
+1. **A dry-run test route with side-effects gated off.** A parallel endpoint (e.g. `POST .../chat-test`) where sessions carry a `test_` prefix run the FULL graph — real model, real tools, real transitions — but external side-effects go dry-run (CRM writes mocked, mail gated off). This lets you QA entire conversations without dirtying production.
+
+2. **Parallel persona batteries scored by DIFFERENT evaluator models.** N scripted persona-conversations (the curious one, the price-pusher, the one who leaks data piecemeal, the hostile one…) driven by evaluator agents each running on a different model, each scoring against explicit criteria (no price concession under pressure, zero proper nouns, qualified-by-vertical, zero duplicates after close). Observed on the same bot: different evaluator models catch DIFFERENT failures — evaluator-model diversity finds what redundancy can't.
+
+Failures a real battery caught: a narrative contact accepted as real, nagging after a "no", duplicate leads after close, and an internal-notes leak in the final round — each maps back to a gotcha documented in this file.
