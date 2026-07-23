@@ -44,6 +44,7 @@ Each node owns its outgoing transitions. Full data model + the runtime loop: [re
 | A node that answers from a knowledge base (**RAG**) — embedding-model quality, diagnosing bad retrieval | [reference/rag-nodes.md](reference/rag-nodes.md) |
 | **Small-model reliability** — params from state not args, real-result confirmation, pin invalidation, response dedup, state-forcing debug | [reference/state-and-small-models.md](reference/state-and-small-models.md) |
 | **Presentation / render review** — the look-and-feel defects every graph bot ships with, and the BASE checklist that prevents them | [reference/presentation-and-render-review.md](reference/presentation-and-render-review.md) |
+| **State the bot can't know** — no tool → invented facts; the read-only tool that closes the gap | [reference/unknowable-state-and-tools.md](reference/unknowable-state-and-tools.md) |
 
 ## Quick reference
 
@@ -61,5 +62,6 @@ Each node owns its outgoing transitions. Full data model + the runtime loop: [re
 - **A verification gate leaks** because the prompt was "supposed to" hold it. Make it a `toolGate` `expression` — the sensitive tools don't exist for the model until the flag flips. [transitions-and-gotchas.md]
 - **A close/terminal node dead-ends a follow-up request** — after an action completes, a new request gets improvised in the close node, skipping the flow's gates. Give the close node a "new request → hub" edge, evaluated before → end. [transitions-and-gotchas.md]
 - **A small model invents tool params / claims actions that didn't happen / repeats itself.** Derive critical params from state (not `args`), confirm only on the tool's real result, dedup the output in code. [state-and-small-models.md]
+- **The bot confidently answers a state question it has NO tool for** ("yes, that slot is free") — no tool means no result to contradict it and no error to log, so it passes silently. Forbid it in BASE *and* give it the true alternative. [unknowable-state-and-tools.md]
 - **The engine is right but the bot looks unprofessional** — double introduction, a wall of text, drifting register, a phone number as dead digits. All presentation, all invisible to asserts. Run the render review before handoff. [presentation-and-render-review.md]
 - **Building a code graph when a 2-way router or a hosted platform was the right tool.** [code-vs-platform.md]
