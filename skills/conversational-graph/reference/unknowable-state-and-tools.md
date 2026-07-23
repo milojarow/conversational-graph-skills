@@ -58,3 +58,20 @@ Attributing the fact to the lookup damages perceived competence: a real employee
 **Generalization: every new tool brings a hedge, and every hedge has a scope.** Before writing the rule, split the reply's data into **FACTS** (from the knowledge base, asserted) and **LOOKUPS** (from a system, hedged) — and explicitly forbid the hedge from crossing that line. Without the boundary the hedge spills over everything the business *does* know for certain.
 
 **Detectable with a regex** during the render review: search for the hedge followed by a fact (`according to .{0,20}calendar.{0,40}(open|hours|we're)`), and assert that no reply OPENS with the hedge.
+
+## When a capability lands, sweep the vocabulary around it
+
+Adding the tool is one commit. The **vocabulary that assumed its absence** lives in the prompt, in state names, in emails and in the UI — and all of it silently starts lying.
+
+A bot that evolved in a single day shows the shape: (1) it filed requests that staff approved; (2) it got an availability tool; (3) it was allowed to book directly. The status was called `confirmed` from stage (1), where it meant *"staff approved it"*. After (3) the name survived but now described something else: *"it has a date and time"*. The mismatch surfaced the first time somebody from the business read the dashboard and asked the obvious question: in a normal business, *confirming* means asking the CUSTOMER whether they will show up. An internal step had taken over the name of the only event the business actually cares about.
+
+Two separate lessons:
+
+**1. Sweep the language after every capability change.** When the booking tool landed, prompt sentences that were now false stayed alive ("the office will confirm your time", "I can't hold slots") along with the mis-named status. Checklist after enabling a new capability:
+- Which prompt sentences were true only *because* the capability was missing?
+- Does any status/field name a step that no longer exists?
+- Do the emails and the UI still describe the old flow?
+
+**2. A status name IS the definition of the business process.** While "confirmed" meant two things, the business could not measure the one thing that matters: how many people say they're coming, and how many don't show. The right split — `scheduled` (has a time) vs `confirmed` (the customer replied) vs `no_show` — is not cosmetic: without the third state, the metric that justifies building reminders does not exist. **Model states by the real EVENT they represent, not by who touched the record last.**
+
+Operational corollary: renaming statuses is a change coordinated with the frontend (filters tend to survive; badges and labels don't). Migrate existing records in the same move and document the old→new mapping, or the dashboard renders a status it doesn't know how to paint.
