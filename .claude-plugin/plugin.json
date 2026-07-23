@@ -1,6 +1,6 @@
 {
   "name": "conversational-graph-skills",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Use when building a conversational agent as a code-driven graph / state machine — routing a chat through focused stages (nodes with their own prompt + tools) via forward/back transitions — or when a stage-routing bot mis-routes, hallucinates a completed action, or a security gate leaks.",
   "author": {
     "name": "milojarow",
