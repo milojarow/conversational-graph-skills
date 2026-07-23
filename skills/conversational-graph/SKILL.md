@@ -50,7 +50,7 @@ Each node owns its outgoing transitions. Full data model + the runtime loop: [re
 
 - **3 transition types:** `unconditional`, `llm` (intent — fuzzy), `expression` (deterministic predicate — for completion + security gates).
 - **Completion (→ close) is `expression`, never `llm`.** An eager classifier fires "we're done" mid-flow → a tool-less close node hallucinates the action.
-- **Security gate = `toolGate` by `expression`:** hide a node's sensitive tools until `verified === true`. Deterministic, not jailbreakable — beats prompt-enforcement.
+- **Security gate = `toolGate` by `expression`:** hide a node's sensitive tools until `verified === true`. Deterministic, not jailbreakable — beats prompt-enforcement. Same for role-elevated ("staff") powers: derive the role from the auth token, gate the tools, never from the chat.
 - **Classify on the user's message + prior history — NOT the node's just-generated reply.** Including the reply makes the classifier think "the node is already handling it" → no transition.
 - **Test the graph deterministically:** unit-test the `expr` / `toolGate` / flag-setters (pure functions, no LLM) + a few live route/gate checks.
 
