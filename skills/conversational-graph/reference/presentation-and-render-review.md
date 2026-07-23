@@ -78,3 +78,29 @@ Register is look-and-feel → **it goes in BASE**, next to the tone, declared an
 > Always address the customer informally; never use the formal forms, not even when being formal in content.
 
 (or the inverse, depending on the brand). **Verify it with a regex** over the forbidden forms across several replies, not by eye — a drift that shows up in one reply out of five is exactly what eyeballing misses.
+
+## Contact channels must be actionable — and guaranteed in CODE
+
+**Wall:** the bot closes replies with *"you can message us on WhatsApp at +NN NNN NNN NNNN"*. In a chat window that is dead text: the user would have to memorize the number, leave, open another app and type it. The conversion is lost at the exact moment of highest intent.
+
+**Rule: every contact channel the bot offers is emitted as a URL with a scheme** — `https://wa.me/<E.164 digits, no +>`, `mailto:`, `tel:` — never as loose digits. The WhatsApp deep link is the same on mobile and desktop; the platform decides native app vs web, so the bot never needs to detect the device.
+
+**What matters is WHERE it is guaranteed.** Instructing it in the prompt is not enough: the model sometimes writes the number in local format, sometimes the link, sometimes both. The correct form is an **invariant, not a creative decision**, so it belongs in the engine's post-processing — alongside the options-marker strip and the response dedup:
+
+```js
+const LINK = "https://wa.me/<digits>";
+const RE = /* the BUSINESS's own number, specifically — its formatting variants */;
+function linkify(text) {
+    // 1) protect already-formed links behind a placeholder → idempotent
+    // 2) replace the number's variants with LINK
+    // 3) restore the protected ones
+}
+```
+
+Three details that avoid bugs:
+
+- **Match the business's specific number, not a generic phone pattern.** A generic `\d{10}` would rewrite the CUSTOMER's phone when the bot echoes it back in an appointment summary. Test that non-regression case explicitly.
+- **Idempotency, via protecting URLs already present.** If the model already wrote the link (because the prompt asked for it), you must not end up with `wa.me/wa.me/…`.
+- **Lookbehind is not available in every embedded runtime** (Goja/JSVM and similar). The protect-replace-restore pattern avoids it and is portable.
+
+**Closing the loop: the backend guarantees the FORM, but the channel has to RENDER it.** A plain-text `reply` needs the widget to linkify `https?://` *after* HTML-escaping. Document that as an explicit frontend action, or the correct link still looks like dead text.
