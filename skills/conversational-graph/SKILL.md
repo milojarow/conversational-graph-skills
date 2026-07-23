@@ -45,6 +45,7 @@ Each node owns its outgoing transitions. Full data model + the runtime loop: [re
 | **Small-model reliability** — params from state not args, real-result confirmation, pin invalidation, response dedup, reasoning-effort cost, state-forcing debug | [reference/state-and-small-models.md](reference/state-and-small-models.md) |
 | **Presentation / render review** — the look-and-feel defects every graph bot ships with, and the BASE checklist that prevents them | [reference/presentation-and-render-review.md](reference/presentation-and-render-review.md) |
 | **State the bot can't know** — no tool → invented facts; the read-only tool that closes the gap | [reference/unknowable-state-and-tools.md](reference/unknowable-state-and-tools.md) |
+| **Multimodal input** (voice / image) — endpoint + prompt only, never in the history, guardrails per modality | [reference/multimodal-input.md](reference/multimodal-input.md) |
 
 ## Quick reference
 
