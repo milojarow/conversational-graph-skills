@@ -32,3 +32,29 @@ Implementation details that avoid bugs:
 - **Degrade honestly:** if the state system doesn't answer, return `checked:false` with an explicit instruction NOT to invent hours and to fall back to the previous behavior (state the opening hours, say the business confirms). **A timeout must never produce a promise.**
 
 Minimum test set: a closed day, an open day with real occupied slots seeded, an hour outside business hours, and an imperative request ("just hold it"). All four must keep *falls inside opening hours* / *is free* / *is reserved* apart — three different things that a bot without the tool collapses into one.
+
+## Every hedge has a SCOPE — bound it to the datum the tool returns
+
+**Wall:** the framing rule from the previous section was written as *"ALWAYS frame it as 'according to our calendar'"*. What came out in production:
+
+> *"According to our calendar, tomorrow Friday **we're open 10:00 am to 5:00 pm** and I have free…"*
+
+Opening hours are not dictated by the calendar. The reply fused two data of different natures:
+
+| Datum | Nature | How it should sound |
+|---|---|---|
+| Business hours | a **FACT** of the business, in the knowledge base | Confidently, from memory: *"on Fridays we're open 10 to 5"* |
+| Free/booked slots | a **LOOKUP** against a system | Here the hedge belongs: *"I have 10 and 12 free"*, *"that hour is taken"* |
+
+Attributing the fact to the lookup damages perceived competence: a real employee does not say "according to the calendar, we open at 10" — they just know. The cost is not accuracy, it is **credibility**, which is exactly what a customer-facing bot sells.
+
+**Rule: when you introduce a tool, write the hedge bound to the datum the tool returns, and say explicitly what is NOT hedged.** Wording that worked:
+
+> HOURS vs CALENDAR — these are DIFFERENT things, don't mix them:
+> - Business HOURS are a FACT you know by heart; say it with confidence, like someone who works there. NEVER attribute it to the calendar ("according to our calendar we're open from…" is WRONG and sounds like a new hire).
+> - The CALENDAR only reveals which hours are free or taken. That — and only that — is the datum that comes from the tool.
+> - Don't open your replies with "according to our calendar". Talk naturally: "tomorrow Friday we're open 10:00 am to 5:00 pm; I have 10:00, 12:00 and 3:00 free".
+
+**Generalization: every new tool brings a hedge, and every hedge has a scope.** Before writing the rule, split the reply's data into **FACTS** (from the knowledge base, asserted) and **LOOKUPS** (from a system, hedged) — and explicitly forbid the hedge from crossing that line. Without the boundary the hedge spills over everything the business *does* know for certain.
+
+**Detectable with a regex** during the render review: search for the hedge followed by a fact (`according to .{0,20}calendar.{0,40}(open|hours|we're)`), and assert that no reply OPENS with the hedge.
