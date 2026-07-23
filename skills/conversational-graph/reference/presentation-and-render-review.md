@@ -36,3 +36,21 @@ One query is not enough: an enumeration rule tuned on a list breaks the single-f
 - **Format vs channel** — if you forbid markdown because the channel won't render it, you must supply the replacement (paragraphs). Forbidding without substituting produces caked prose.
 
 Wherever a presentation rule can be stated as an invariant, **assert it with a regex over several real replies** instead of eyeballing it — that turns a subjective impression into a check you can re-run.
+
+## Opening: the greeting belongs to the CHANNEL, not to a node
+
+**Wall:** the user reads two introductions in a row, the second one redundant.
+
+**Cause:** the channel (a web widget, typically) paints a static local greeting on open — "Hi! I'm <bot> 👋 how can I help?" — without calling the API, a good pattern that saves a network round-trip. Meanwhile the hub node's prompt says *"Greet (only the first time), then answer questions about…"*. The backend has **no way to know the channel already greeted**: it sees an empty history → satisfies "first time" → introduces itself again.
+
+**Rule — a node prompt describes only its JOB, never the act of greeting or introducing itself.** Identity is declared as **state in BASE** ("You are the assistant for X"), never as an **action** to perform ("greet", "introduce yourself"). A mature graph has zero greeting instructions in its nodes; the only greetings live in the close node, and they are goodbyes.
+
+**If the channel greets, add an explicit opening rule to BASE** — the negative form, not just the absence of the positive one:
+
+> The channel has already shown the opening greeting. NEVER introduce yourself or state your name/role as an opening; go straight into the answer. If the user greets you, return the greeting in a few words and continue.
+
+Deleting the positive instruction is not enough: with an empty history a model tends to self-introduce anyway. The negative rule in BASE closes it deterministically.
+
+**Diagnosing "backend or frontend?"** — read the session's persisted history. If the FIRST stored message is the user's and the assistant's reply already carries the introduction, the duplicate came from the model (backend), not from a duplicated client-side bubble.
+
+**Verify with three scenarios, not one:** (1) first message is a direct question; (2) first message is a greeting from the user — must return a brief greeting WITHOUT introducing itself; (3) a normal second turn. A "self-introduction" regex over the three replies turns the check into an assertion instead of an impression.
