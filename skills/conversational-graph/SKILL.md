@@ -42,7 +42,7 @@ Each node owns its outgoing transitions. Full data model + the runtime loop: [re
 | **Transition gotchas** — the hard walls: route-on-intent, complete-by-expression, classifier balance, expression security gates | [reference/transitions-and-gotchas.md](reference/transitions-and-gotchas.md) |
 | When a **code graph** vs a **hosted platform** vs a **simple 2-way router** | [reference/code-vs-platform.md](reference/code-vs-platform.md) |
 | A node that answers from a knowledge base (**RAG**) — embedding-model quality, diagnosing bad retrieval | [reference/rag-nodes.md](reference/rag-nodes.md) |
-| **Small-model reliability** — params from state not args, real-result confirmation, pin invalidation, response dedup, state-forcing debug | [reference/state-and-small-models.md](reference/state-and-small-models.md) |
+| **Small-model reliability** — params from state not args, real-result confirmation, pin invalidation, response dedup, reasoning-effort cost, state-forcing debug | [reference/state-and-small-models.md](reference/state-and-small-models.md) |
 | **Presentation / render review** — the look-and-feel defects every graph bot ships with, and the BASE checklist that prevents them | [reference/presentation-and-render-review.md](reference/presentation-and-render-review.md) |
 | **State the bot can't know** — no tool → invented facts; the read-only tool that closes the gap | [reference/unknowable-state-and-tools.md](reference/unknowable-state-and-tools.md) |
 

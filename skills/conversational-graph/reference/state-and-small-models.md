@@ -54,6 +54,28 @@ This kills two real bugs:
 
 `tool_choice: "none"` ≠ removing the tools from the request: stripping them breaks context coherence (the model then sees tool results for tools that "no longer exist"); `"none"` leaves them visible but uncallable.
 
+## Turn OFF the reasoning you aren't using
+
+On a reasoning-capable model, the **default reasoning effort can be the overwhelming majority of a support bot's output tokens** — and it contributes nothing to "how much does X cost?". Measured directly against the API with one trivial question, on a mid-tier fast model driving an appointments bot:
+
+| Config | output tokens | of which reasoning |
+|---|---|---|
+| default (`effort: medium`) | 489 | **447 (91%)** |
+| `reasoning: { effort: "minimal" }` | 33 | 0 |
+
+Reasoning tokens are **billed as output** (here 5× the input price) and they **cost wall-clock**. In a conversational bot most turns are "retrieve a fact from the prompt + one friendly sentence" — there is nothing to reason about.
+
+End-to-end over the canonical battery (greeting → price question → availability lookup with a tool → data capture → record creation):
+- **Latency: 2.8 s average vs ~4.5 s (−38%)** ← the big win, and the one the user actually feels
+- Cost: −10% per conversation
+- **Quality: identical** — the tool call, the name/phone/service extraction and the record creation all worked the same
+
+**Why the cost saving is "only" 10%, and what that tells you:** in a bot with a knowledge base the **input dominates** (~90% of spend), because the whole knowledge travels in every turn. Lowering reasoning fixes latency; the real cost lever is **prompt caching** (cached input is often ~10× cheaper). Correct optimization order: (1) reasoning to minimum — free, immediate, wins latency; (2) prompt caching if volume grows; (3) trim the knowledge base — last, because it's the one that risks quality.
+
+**Verify on a battery, not on one question.** Reasoning can matter for choosing among several tools, or for extracting data from a messy message. The right test is the full conversation with tool calls and capture, comparing latency AND outcome; if quality drops, step up to `low` before going back to `medium`.
+
+**How to measure it:** request the response with the reasoning-token breakdown in `usage` (e.g. `completion_tokens_details.reasoning_tokens`) — a single request reveals it. For true cost per conversation, read the account credit before and after a controlled batch; note the provider's counter can lag ~1 min, so reading it too soon shows a zero delta and looks free.
+
 ## Debug by forcing state and measuring
 
 To reproduce a routing/state bug without the whole flow: seed graph state (`currentNode` + flags) directly in the store (e.g. Redis), send one turn, observe the resulting node + state. To catch duplication/hallucination, log one line per tool-loop round (which tool, what content) — the cause becomes visible instead of guessed.
