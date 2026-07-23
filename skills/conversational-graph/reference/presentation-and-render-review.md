@@ -54,3 +54,27 @@ Deleting the positive instruction is not enough: with an empty history a model t
 **Diagnosing "backend or frontend?"** — read the session's persisted history. If the FIRST stored message is the user's and the assistant's reply already carries the introduction, the duplicate came from the model (backend), not from a duplicated client-side bubble.
 
 **Verify with three scenarios, not one:** (1) first message is a direct question; (2) first message is a greeting from the user — must return a brief greeting WITHOUT introducing itself; (3) a normal second turn. A "self-introduction" regex over the three replies turns the check into an assertion instead of an impression.
+
+## Enumerations: pin the unit, and exempt them from the word cap
+
+**Wall:** the bot lists five services with prices **crammed into one running paragraph** — unreadable in a narrow chat window. Root cause is usually self-inflicted: BASE forbids markdown (so the widget doesn't paint literal asterisks), which removes lists and pushes everything into prose, and nothing was put in their place.
+
+**The wording that works first try** — it pins the *unit* and states the anti-pattern explicitly (see the over-fragmentation gotcha in [the-model.md](the-model.md)):
+
+> Each item goes in its OWN short paragraph, with its name and its value joined in ONE single sentence — "Service: $800 per session.". The blank line goes BETWEEN items, never inside one; do not split an item's name and its description into two paragraphs. One lead-in sentence before the list, one closing sentence after.
+
+Naming the anti-pattern ("do not split the name from its description") is what prevents the over-fragmentation that the bare "one paragraph per thing" rule causes.
+
+**A global word cap fights every enumeration.** If BASE says "max ~120 words", an honest list of five items does not fit, and the model either truncates or crams. Add both:
+- an explicit exception — *"in enumerations you may exceed the cap as long as each item stays in one short sentence"*;
+- an item cap — *"max 5; if there are more, give the main ones and offer the rest"* — so you avoid the wall AND the endless list.
+
+## Register (formal vs informal) drifts unless it is declared
+
+Collateral finding from the same review: across consecutive replies the same bot alternated formal and informal address. Nobody asked for it — the model picked its formality **by topic**, so a serious question got the formal register and a casual one got the informal. To a customer that reads like two different people.
+
+Register is look-and-feel → **it goes in BASE**, next to the tone, declared and absolute:
+
+> Always address the customer informally; never use the formal forms, not even when being formal in content.
+
+(or the inverse, depending on the brand). **Verify it with a regex** over the forbidden forms across several replies, not by eye — a drift that shows up in one reply out of five is exactly what eyeballing misses.
