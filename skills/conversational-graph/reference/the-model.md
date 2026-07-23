@@ -42,6 +42,36 @@ OPTIONS: Yes, confirm | Change a detail
 
 Why it holds up: the model stays channel-agnostic (the same graph serves web / WhatsApp / Messenger by swapping only the renderer); if the parser doesn't find the marker, the message goes out as normal text (clean degradation); and the marker is deterministically testable in the QA harness. This is the presentation-layer counterpart to keeping formatting in BASE — the marker convention lives in BASE, the renderer lives in the engine, and no node knows which channel it's on.
 
+#### The fallback must match the turn's CONTENT, not the node
+
+To guarantee options on every turn it is tempting to add a fallback: if the model didn't emit the marker, use a fixed per-node default (hub → "See services | Prices | Book"). Observed failure: on a turn where the bot offered the day's free slots **in the text** ("I have 10:00, 12:00, 2:00…") but forgot to emit the marker, the fallback painted the node's navigation chips — the user reads *"which time do you prefer?"* with buttons underneath saying *"See services"*. It breaks the sense of being guided.
+
+The cause is that the fallback chose by **state** (which node) without looking at what the reply actually said. A node default is right for open turns and contradictory the moment the turn presented concrete options.
+
+**Fix — anchor the fallback to the turn's source of truth, not to the text and not to the node.** When a tool produced the options the reply is offering (e.g. `check_availability` → `free_slots`), capture that result in a **turn-local** variable during the tool-loop; in the options logic, BEFORE the node default, if the turn produced those options (≥2) then the chips ARE those options. Chips and text come from the same datum, so they cannot contradict each other.
+
+**Tempting and wrong:** extracting the options with a regex over the reply text. Fragile — in "we're open 10:00 am to 5:00 pm and I have 10:00, 12:00 free" the regex also captures the *closing* time, which is not a bookable slot. Structured tool output has no such problem.
+
+#### A chip must be something to SEND, never an instruction of what to type
+
+Forcing chips on *every* turn (including data-capture turns) makes the model invent pseudo-chips like "Say your full name" / "Provide your phone". They are nonsense: tapping one SENDS that literal text to the bot, which means nothing — they are instructions aimed at the user, not answers.
+
+The root cause is that a capture phase has no natural canned answer (the user MUST type free text). The correct rule is not "add chips for whatever comes next" but **"add chips that can be SENT"**.
+
+Then the sharper correction, learned in production: **in the capture of personal data there are NO chips at all — they are a funnel leak.** At the capture step the customer is one datum away from completing the conversion; any chip is an exit door. Even a legitimate "escape" chip (contact us, see services, cancel) doesn't help there — it sabotages.
+
+Final rule, by phase:
+- **Navigation / offering options** (times, services, Confirm-or-Change) → chips YES.
+- **Capture of a free-text datum** (name, phone, email) → **ZERO chips**. The only path is typing it; don't hand the user a distraction.
+
+Unifying formulation: *chips belong wherever there is a real choice to SEND that does not compete with completing the task in progress.*
+
+Robust implementation, two layers — never rely on the model alone:
+1. The model emits an explicit "no chips" marker (`OPTIONS: -`) on capture turns.
+2. A deterministic backstop: a code filter that drops chips starting with an instruction verb (say / give / provide / write / type / enter / share…), plus a regex over the reply that detects the "asking for name/phone/email" pattern and suppresses chips even if the model forgot the marker.
+
+**The decision cascade, in order:** staff role → `[]` · capture turn → `[]` · the turn produced tool options → those · the model emitted a marker → those · node default. The order matters: capture suppression must come BEFORE the node default, or the navigation default re-introduces the very leak you closed. If the instruction-verb filter empties the list, fall back to the node default.
+
 ## Edge (transition)
 
 A transition is a directed move from one node to another.
